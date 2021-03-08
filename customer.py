@@ -11,7 +11,7 @@ class Cust_Win:
     def __init__(self,root):
         self.root=root
         self.root.title("Hospital Management System")
-        self.root.geometry("1295x550+230+220")
+        self.root.geometry("1295x550+50+130")
 
 
         ##### variables 
@@ -36,7 +36,7 @@ class Cust_Win:
 
         # title
         lbl_title=Label(self.root,text="ADD CUSTOMER DETAILS",font=("times new roman",18,"bold"),bg="black",fg="gold",bd=4,relief=RIDGE)
-        lbl_title.place(x=0,y=0,width=1295,height=50)
+        lbl_title.place(x=0,y=0,width=1460,height=50)
 
         #image
         img2=Image.open(r"C:\Users\DELL\Desktop\hotel_management_system\images\hot.jpg")
@@ -147,13 +147,13 @@ class Cust_Win:
         btnAdd=Button(btn_frame,text="Add",command=self.add_data,font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnAdd.grid(row=0,column=0,padx=1)
 
-        btnUpdate=Button(btn_frame,text="Update",font=("arial",12,"bold"),bg="black",fg="gold",width=9)
+        btnUpdate=Button(btn_frame,text="Update",command=self.update_data, font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnUpdate.grid(row=0,column=1,padx=1)
 
-        btnDelete=Button(btn_frame,text="Delete",font=("arial",12,"bold"),bg="black",fg="gold",width=9)
+        btnDelete=Button(btn_frame,text="Delete",command=self.m_delete, font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnDelete.grid(row=0,column=2,padx=1)
 
-        btnReset=Button(btn_frame,text="Reset",font=("arial",12,"bold"),bg="black",fg="gold",width=9)
+        btnReset=Button(btn_frame,text="Reset",command=self.reset, font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnReset.grid(row=0,column=3,padx=1)
 
 
@@ -168,19 +168,22 @@ class Cust_Win:
         lblSearchBy=Label(Table_Frame,text="Search By:",font=("arial",12,"bold"),bg="red",fg="white")
         lblSearchBy.grid(row=0,column=0,sticky=W)
 
-        combo_Search=ttk.Combobox(Table_Frame,font=("arial",12,"bold"),width=24,state="readonly")
+        self.search_var=StringVar()
+        combo_Search=ttk.Combobox(Table_Frame,textvariable=self.search_var, font=("arial",12,"bold"),width=24,state="readonly")
         combo_Search["value"]=("Mobile","Ref")
         combo_Search.current(0)
         combo_Search.grid(row=0,column=1,padx=2)
-
-        txtSearch=ttk.Entry(Table_Frame,width=24,font=("arial",13,"bold"))
+        
+        self.txt_search=StringVar()
+        txtSearch=ttk.Entry(Table_Frame,textvariable=self.txt_search,width=24, font=("arial",13,"bold"))
         txtSearch.grid(row=0,column=2,padx=2)
 
         # buttons
-        btnSearch=Button(Table_Frame,text="Search",font=("arial",12,"bold"),bg="black",fg="gold",width=9)
+        btnSearch=Button(Table_Frame,text="Search",command=self.search,font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnSearch.grid(row=0,column=3,padx=1)
 
-        btnShowAll=Button(Table_Frame,text="Show All",font=("arial",12,"bold"),bg="black",fg="gold",width=9)
+
+        btnShowAll=Button(Table_Frame,text="Show All",command=self.fetch_data, font=("arial",12,"bold"),bg="black",fg="gold",width=9)
         btnShowAll.grid(row=0,column=4,padx=1)
 
         #### show database tables
@@ -228,12 +231,13 @@ class Cust_Win:
         self.Cust_Details_Table.column("address",width=100)
 
         self.Cust_Details_Table.pack(fill=BOTH,expand=1)
+        self.Cust_Details_Table.bind("<ButtonRelease-1>",self.get_cursor)
         self.fetch_data()
 
         # working on database
 
     def add_data(self):
-        if self.var_mobile.get()=="" or self.var_mobile.get()=="":
+        if self.var_mobile.get()=="" or self.var_mobile.get()="":
             messagebox.showerror("Error","All Fields are Required",parent=self.root)
         else:
             try:
@@ -254,7 +258,7 @@ class Cust_Win:
                                                                                 ))
 
                 conn.commit()
-                self.fetch_data
+                self.fetch_data()
                 conn.close()
                 messagebox.showinfo("Success","Customer Added",parent=self.root)
             except Exception as es:
@@ -294,9 +298,82 @@ class Cust_Win:
         self.var_address.set(row[10])
 
 
-       
+    def update_data(self):
+        if self.var_mobile.get()=="":
+            messagebox.showerror("Error","Enter mobile No",parent=self.root)
+        else:
+             conn=mysql.connector.connect(host="localhost",username="root",password="1234",database="management")
+             my_cursor=conn.cursor()
+             my_cursor.execute("update customer set Name=%s,Mother=%s,Gender=%s,PostCode=%s,Mobile=%s,Email=%s,Nationality=%s,Idproof=%s,Idnumber=%s,Address=%s where Ref=%s",(
+                                                                                                                                                               self.var_cust_name.get(),
+                                                                                                                                                               self.var_mother.get(),
+                                                                                                                                                               self.var_gender.get(),
+                                                                                                                                                               self.var_post.get(),
+                                                                                                                                                               self.var_mobile.get(),
+                                                                                                                                                               self.var_email.get(),
+                                                                                                                                                               self.var_nationality.get(),
+                                                                                                                                                               self.var_id_proof.get(),
+                                                                                                                                                               self.var_id_number.get(),
+                                                                                                                                                               self.var_address.get(),  
+                                                                                                                                                               self.var_ref.get()  
+                                                                                                                                                            ))
+             conn.commit()
+             self.fetch_data()
+             conn.close()
+             messagebox.showinfo("Update","Customer Updated Successfully",parent=self.root)
+                                                                                                                                                      
+
+
+    def m_delete(self):
+        mDelete=messagebox.askyesno("Delete Data","Do you want to delete",parent=self.root)
+        if mDelete>0:
+            conn=mysql.connector.connect(host="localhost",username="root",password="1234",database="management")
+            my_cursor=conn.cursor()
+            query="delete from customer where Ref=%s"
+            value=(self.var_ref.get(),)
+            my_cursor.execute(query,value)
+        else:
+            if not mDelete:
+                return
+        conn.commit()
+        self.fetch_data()
+        conn.close()
+
+
+    def reset(self):
+        #self.var_ref.set(""),
+        self.var_cust_name.set(""),
+        self.var_mother.set(""),
+        #self.var_gender.set((""),
+        self.var_post.set(""),
+        self.var_mobile.set(""),
+        self.var_email.set(""),
+        #self.var_nationality.set(""),
+        #self.var_id_proof.set(""),
+        self.var_id_number.set(""),
+        self.var_address.set("")
+
+        x=random.randint(1000,9999)
+        self.var_ref.set(str(x))
+
+
+
+    def search(self):
+        conn=mysql.connector.connect(host="localhost",username="root",password="1234",database="management")
+        my_cursor=conn.cursor()
+
+        my_cursor.execute("select * from customer where "+str(self.search_var.get())+" LIKE '%"+str(self.txt_search.get())+"%'")
+        rows=my_cursor.fetchall()
+        if len (rows)!=0:
+            self.Cust_Details_Table.delete(*self.Cust_Details_Table.get_children())
+            for i in rows:
+                self.Cust_Details_Table.insert("",END,values=i)
+            conn.commit()
+        conn.close()
 
         
+
+
 
         if __name__ == "__main__":
             root=Tk()
