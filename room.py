@@ -303,6 +303,8 @@ class Roombooking:
         else:
              conn=mysql.connector.connect(host="localhost",username="root",password="1234",database="management")
              my_cursor=conn.cursor()
+
+
              my_cursor.execute("update room set check_in=%s,check_out=%s,roomtype=%s,roomavailable=%s,meal=%s,noofdays=%s where Contact=%s",(
                                                                                                                                              self.var_checkin.get(),
                                                                                                                                              self.var_checkout.get(),

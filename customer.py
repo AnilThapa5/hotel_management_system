@@ -237,7 +237,7 @@ class Cust_Win:
         # working on database
 
     def add_data(self):
-        if self.var_mobile.get()=="" or self.var_mobile.get()="":
+        if self.var_mobile.get()=="" or self.var_mobile.get()=="":
             messagebox.showerror("Error","All Fields are Required",parent=self.root)
         else:
             try:
