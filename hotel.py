@@ -6,7 +6,7 @@ from room import Roombooking
 class HotelManagementSystem:
     def __init__(self,root):
         self.root=root
-        self.root.title("Hospital Management System")
+        self.root.title("Hotel Management System")
         self.root.geometry("1550x800+0+0")
 
 
